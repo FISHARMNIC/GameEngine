@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+</head>
+
+<body>
+    <div style="width:100%; height: 100%;">
+        <div style="width:50%; height: 100%; float:left;">
+            <textarea style="width:95%; height:600px; font-size: 10px;" id="ta" onkeyup="tryInj()">
+function start() {
+
+}
+
+function main() {
+
+}
+
+</textarea>
+            <br>
+
+            <button onclick="fontLess()">-</button>
+            <button onclick="fontMore()">+</button>
+
+            <script>
+                function fontMore() {
+                    document.getElementById('ta').style.fontSize = parseInt(document.getElementById('ta').style.fontSize) + 1 + "px"
+                }
+                function fontLess() {
+                    document.getElementById('ta').style.fontSize = parseInt(document.getElementById('ta').style.fontSize) - 1 + "px"
+                }
+
+                function deleteSprite() {
+                    var nameOf = prompt("Name of sprite to delete")
+                    delete Sprites[nameOf]
+                    refreshSpriteList()
+                }
+
+                function loadDemo() {
+                    Sprites = {
+                        background: new sprite("image", "exampleAssets/bg.jpg"),
+                        balloon: new sprite("image", "exampleAssets/balloon.png"),
+                        crosshair: new sprite("image", "exampleAssets/crosshair.png"),
+                    }
+                    refreshSpriteList()
+                    document.getElementById("ta").value = `
+function start() {
+    globalThis.gunshot = new Audio("exampleAssets/cartoon-shot.wav");
+    gunshot.volume = 0.2
+
+    Sprites.background.source = "exampleAssets/bg.jpg"
+    Sprites.background.reSize(canvas.width,canvas.height)
+    Sprites.background.set(0,0)
+
+    Sprites.crosshair.source = "exampleAssets/crosshair.png"
+    Sprites.crosshair.reSize(90,100)
+    Sprites.crosshair.set(canvas.width/2,canvas.height/2)
+
+    Sprites.balloon.source = "exampleAssets/balloon.png"
+    Sprites.balloon.reSize(90,100)
+}
+
+function main() {
+    if(keys.ArrowLeft) {
+        Sprites.crosshair.move(-2,0)
+    } if(keys.ArrowRight) {
+        Sprites.crosshair.move(2,0)
+    } if(keys.ArrowUp) {
+        Sprites.crosshair.move(0,-2)
+    } if(keys.ArrowDown) {
+        Sprites.crosshair.move(0,2)
+    }
+    if(Sprites.balloon.distanceTo(...Sprites.crosshair.position()) < 50  &&  keys.Space ) {
+        gunshot.play()
+        Sprites.balloon.set(randomInt(canvas.width-20)+10, randomInt(canvas.height-20)+10)
+    }
+}
+
+function randomInt(max) {
+    return Math.floor(Math.random() * (max+1));
+}
+                    `
+                    tryInj()
+                }
+
+                function loadDemo2() {
+                    Sprites = {
+                        worm: new sprite("circle"),
+                        food: new sprite("circle")
+                    }
+                    refreshSpriteList()
+                    document.getElementById("ta").value = `
+function start() {
+    globalThis.gameover = new Audio("exampleAssets/gameover.wav");
+    gameover.volume = 0.2
+
+    __renderInterval = 300
+    globalThis.wormsize = 10
+    globalThis.wormspeed = 20
+    globalThis.directions = [[wormspeed,0],[0,wormspeed],[-1*wormspeed,0],[0,-1*wormspeed]]
+    globalThis.direction = 0
+    globalThis.cloneCounter = 1
+
+    Sprites.worm.set(canvas.width/2, canvas.height/2)
+    Sprites.worm.reSize(10,10)
+
+
+    Sprites.food.color = "red"
+    Sprites.food.reSize(10,10)
+
+}
+
+function main() {
+    direction_value = directions[direction]
+    Sprites.worm.move(direction_value[0],direction_value[1])
+
+    newInstanceOf("worm")
+
+    forAllClonesOf("worm", (clone,id) => {
+        if(Sprites[clone].distanceTo(Sprites.worm.xPos, Sprites.worm.yPos) < 2 && id > 2) {
+            gameover.play()
+        }
+        if(id < cloneCounter - wormsize) {
+            delete Sprites[clone]
+        }
+    })
+
+    if(Sprites.food.distanceTo(Sprites.worm.xPos, Sprites.worm.yPos) < 20) {
+        Sprites.food.set(randomInt(canvas.width), randomInt(canvas.height))
+        wormsize++
+    }
+
+
+    if (keys.ArrowRight) {
+        direction = 0
+    } else if (keys.ArrowUp) {
+        direction = 3
+    } else if (keys.ArrowLeft) {
+        direction = 2
+    } else if (keys.ArrowDown) {
+        direction = 1
+    }
+
+    cloneCounter++
+}
+
+function randomInt(max) {
+    return Math.floor(Math.random() * (max+1));
+}
+                    `
+                    tryInj()
+                }
+            </script>
+
+
+            <p id="codeStatus"></p>
+        </div>
+        <div style="width:50%; height: 100%; float:right;">
+
+            <canvas id="canvas" style="border: 1px solid black;"></canvas>
+            <button onclick="newSprite()">new sprite</button>
+            <br>
+            <button onclick="startRender()">Start</button>
+            <button onclick="stopRender()">Stop</button>
+            <p id="gameStatus">Stopped</p>
+        </div>
+    </div>
+    <div style="clear: both;"></div>
+    <h2>All Sprites</h2>
+    <h4 id="allSprites"></h4>
+    <button onclick="deleteSprite()"">Delete Sprite</button>
+    <br><br>
+    <button onclick=" loadDemo()">Load Demo 1</button>
+    <br>
+    <button onclick="loadDemo2()">Load Demo 2</button>
+    <script src=" index.js"></script>
+
+</body>
+
+</html>
